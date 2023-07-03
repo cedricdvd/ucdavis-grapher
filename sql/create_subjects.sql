@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS subjects (
+    code CHAR(3) NOT NULL,
+    subject_name VARCHAR(60) NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY
+);
