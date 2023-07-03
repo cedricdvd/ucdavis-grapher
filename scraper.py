@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup as bs
 import os
 import re
 
-from constants import CATALOG_URL, SUBJECT_URL
+from constants import CATALOG_URL, SUBJECT_URL, IGNORE_SUBJECTS
 from connector import connect_database
 
 def get_subjects():
@@ -22,6 +22,10 @@ def get_subjects():
     for subject in subjects:
         # Replace zero-width space
         subject.text.replace('\u200b', '')
+        
+        if subject in IGNORE_SUBJECTS:
+            print('Ignoring subject', subject.text)
+            continue
         
         # Extract name and code
         name, code = re.search(r'(.+) \(([A-Z]{3})\)', subject.text).groups()
@@ -46,11 +50,6 @@ def get_subject_html(subject_code):
     
     soup = bs(page.content, 'html.parser')
     courses = soup.find_all('div', {'class': 'courseblock'})
-    
-    # with open(f'html/{subject_code}.html', 'w') as output_file:
-    #     for course in courses:
-    #         output_file.write(str(course))
-    #     output_file.write('\n')
         
     return courses
 
