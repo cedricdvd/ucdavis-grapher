@@ -47,7 +47,7 @@ def main():
         
         process_courses(subject_html, subject_id)
         print(f'Completed {subject_code} courses.')
-        # time.sleep(1)
+        time.sleep(0.5) # NOTE: prevent too many calls to requests
     
     with open('sql/create_prerequisites.sql', 'r') as file:
         create_table = file.read()
@@ -61,7 +61,7 @@ def main():
     database.commit()
     cursor.close()
     database.close()
-    
-    
+
+
 if __name__ == '__main__':
     main()

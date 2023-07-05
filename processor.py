@@ -1,37 +1,33 @@
-# <div class="courseblock">
-#   <h3 class="cols noindent">
-#       <span class="text courseblockdetail detail-code margin--span text--semibold text--big"> -- course code
-#           <b>EAE 140</b>
-#       </span>
-#       <span class="text courseblockdetail detail-title margin--span text--semibold text--big"> -- course title
-#           <b>— Rocket Propulsion</b>
-#       </span>
-#       <span class="text courseblockdetail detail-hours_html margin--span text--semibold text--big"> -- units
-#           <b>(4 units)</b>
-#       </span>
-#   </h3>
-# <div class="noindent"></div>
-# <div class="noindent">
-#   <p class="courseblockextra noindent"> -- description
-#       <em>Course Description:</em> Fluid and thermodynamics of rocket engines, liquid and solid rocket propulsion. Space propulsion concepts and space mission requirements.
-#   </p></div><div class="noindent">
-#   <p class="text courseblockdetail detail-prerequisite"> -- prerequisites
-#       <i>Prerequisite(s): </i><a class="bubblelink code" href="/search/?P=EME%20106" onclick="return showCourse(this, 'EME 106');" title="EME 106">EME 106</a> C- or better.
-#   </p></div><div class="noindent notinpdf">
-# <div class="courseblockextra noindent">
-# <h4 class="toggle bubble-hide"></h4>
-# <ul>
-# <li><span class="label"><em>Learning Activities:</em></span> Lecture 4 hour(s).</li>
-# <li><span class="label"><em>Enrollment Restriction(s):</em></span> Restricted to upper division standing.</li>
-# <li><span class="label"><em>Credit Limitation(s):</em></span> Not open for credit to students who have taken identical EAE 189A prior to Fall Quarter 2013.</li>
-# <li><span class="label"><em>Grade Mode:</em></span> Letter.</li>
-# <li><span class="label"><em>General Education:</em></span> Science &amp; Engineering (SE).</li></ul>
-
 from connector import connect_database
 from bs4 import BeautifulSoup as bs
 import re
 
+
 def process_courses(subject_html, subject_id):
+    '''Processes courses from a subject and adds them to the database
+    
+    Courses are in the form:
+    
+    <div class="courseblock">
+        <h3 class="cols noindent">
+            <span class="text courseblockdetail detail-code margin--span text--semibold text--big">
+                <b>{course_code}</b>
+            </span>
+            <span class="text courseblockdetail detail-title margin--span text--semibold text--big">
+                <b>- {course_title}</b>
+            </span>
+            ...
+        </h3>
+        ...
+        <p class="courseblockextra noindent">
+            <em>Course Description:</em> {description}
+        </p></div><div class="noindent">
+        <p class="text courseblockdetail detail-prerequisite">
+            <i>Prerequisite(s): </i> {prerequistes}
+        </p></div><div class="noindent notinpdf">
+    <div class="courseblockextra noindent">
+    '''
+
     database, cursor = connect_database()
     
     for course in subject_html:
@@ -58,34 +54,49 @@ def process_courses(subject_html, subject_id):
     cursor.close()
     database.close()
 
+
 def process_prerequisites(subject_code):
+    '''Processes prerequisites for a subject and adds them to the database
+    
+    Prerequisites are in Conjunctive Normal Form (CNF) and look as follows:
+        (A or B or C); (D or E or F); (G); (H or I)
+    '''
     database, cursor = connect_database()
     
+    # Get courses with prerequisites
     cursor.execute('SELECT id, prerequisites FROM courses WHERE subject_id = (SELECT id FROM subjects WHERE code = %s) AND prerequisites IS NOT NULL', (subject_code,))
     courses = cursor.fetchall()
     
-    # Loop through course
-    for course_id, prerequisites in courses:
-        # Ignore C- or better
-        prerequisites = prerequisites.replace(' C- or better', '')
+    # Loop through courses
+    for course_id, prerequisite_list in courses:
+        # Keep track of gropus in CNF
+        group_id = 1
         
-        # Parse "and"
-        prerequisites = prerequisites.split(';')
+        # Clean description, split CNF into separate disjunctions
+        prerequisite_list = prerequisite_list.replace(' C- or better', '')
+        prerequisite_list = prerequisite_list.split(';')
         
         # Parse each disjunction
-        for prerequisite in prerequisites:
+        for group in prerequisite_list:
             
             # Extract courses
-            prereq_course = re.findall(r'[A-Z]{3} [0-9]{3}[A-Z]{,2}', prerequisite)
-            for course in prereq_course:
+            prereq_courses = re.findall(r'[A-Z]{3} [0-9]{3}[A-Z]{,2}', group)
+            
+            # Skip is no courses to process
+            if len(prereq_courses) == 0:
+                continue
+            
+            # Extract prereq_id and insert into database
+            for prereq_code in prereq_courses:
+                cursor.execute('SELECT id FROM courses WHERE course_code = %s', (prereq_code,))
+                prereq_id = cursor.fetchone()
+                if prereq_id is not None:
+                    prereq_id = prereq_id[0]
                 
-                # Get course_id if exists and insert into database
-                cursor.execute('SELECT id FROM courses WHERE course_code = %s', (course,))
-                prerequisite_id = cursor.fetchone()
-                if prerequisite_id is None:
-                    continue
-                prerequisite_id = prerequisite_id[0]
-                cursor.execute('INSERT INTO prerequisites (course_id, prerequisite_id) VALUES (%s, %s)', (course_id, prerequisite_id))
+                # Insert prerequisite into table
+                cursor.execute('INSERT INTO prerequisites (group_num, course_id, prerequisite_code, prerequisite_id) VALUES (%s, %s, %s, %s)', (group_id, course_id, prereq_code, prereq_id))
+                
+            group_id += 1
     
     database.commit()
     cursor.close()
