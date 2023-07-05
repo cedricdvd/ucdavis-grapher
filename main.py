@@ -26,42 +26,36 @@ def main():
         
     cursor.execute(create_table)
     
-    subject_prereqs = []
-    
     cursor.execute('SELECT code FROM subjects')
-    subject_codes = cursor.fetchall()
+    subject_codes = [code[0] for code in  cursor.fetchall()]
     
     for subject_code in subject_codes:
-        code = subject_code[0]
         
-        cursor.execute('SELECT id FROM subjects WHERE code = %s', (code,))
+        cursor.execute('SELECT id FROM subjects WHERE code = %s', (subject_code,))
         subject_id = cursor.fetchone()[0]
         
         cursor.execute('SELECT Count(*) FROM courses WHERE subject_id = %s', (subject_id,))
         course_count = cursor.fetchone()
         
         if course_count[0] != 0:
-            print(f'{code} courses already in database.')
+            print(f'{subject_code} courses already in database.')
             continue
             
-        print(f'{code} courses not in database. Scraping...')
-        subject_html = get_subject_html(code)
-        print(f'Processing {code} courses...')
+        print(f'{subject_code} courses not in database. Scraping...')
+        subject_html = get_subject_html(subject_code)
+        print(f'Processing {subject_code} couses...')
         
-        prereqs = process_courses(subject_html, subject_id)
-        print(f'Completed {code} courses.')
-        time.sleep(1)
-        
-        if len(prereqs) != 0:
-            subject_prereqs.append(prereqs)
+        process_courses(subject_html, subject_id)
+        print(f'Completed {subject_code} courses.')
+        # time.sleep(1)
     
     with open('sql/create_prerequisites.sql', 'r') as file:
         create_table = file.read()
         
     cursor.execute(create_table)
     
-    for subject in subject_prereqs:
-        print(f'Processing {subject.keys()} prerequisites...')
+    for subject in subject_codes:
+        print(f'Processing {subject} prerequisites...')
         process_prerequisites(subject)
     
     database.commit()

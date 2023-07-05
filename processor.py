@@ -34,8 +34,6 @@ import re
 def process_courses(subject_html, subject_id):
     database, cursor = connect_database()
     
-    course_to_prereq = dict()
-    
     for course in subject_html:
         
         soup = bs(str(course), 'html.parser')
@@ -52,44 +50,48 @@ def process_courses(subject_html, subject_id):
             prerequisites = prerequisites.text.strip()
             prerequisites = prerequisites.removeprefix('Prerequisite(s): ')
             prerequisites = prerequisites.removesuffix('.')
+            prerequisites = prerequisites.replace('\xa0', ' ')
             
             cursor.execute('UPDATE courses SET prerequisites = %s WHERE course_code = %s', (prerequisites, course_code))
-        
-        links = soup.find_all('a', {'href': re.compile(r'^/search/\?P=[A-Z]{3}%20[0-9]{3}')})
-        if len(links) != 0:
-            active_prereqs = []
-            
-            for link in links:
-                active_prereqs.append(link['title'].replace('\xa0', ' '))
-                
-            course_to_prereq[course_code] = active_prereqs
             
     database.commit()
     cursor.close()
     database.close()
-            
-    return course_to_prereq
 
-def process_prerequisites(subject_courses):
+def process_prerequisites(subject_code):
     database, cursor = connect_database()
     
-    for course_code, prereqs in subject_courses.items():
-        cursor.execute('SELECT id FROM courses WHERE course_code = %s', (course_code,))
-        course_id = cursor.fetchone()[0]
+    cursor.execute('SELECT id, prerequisites FROM courses WHERE subject_id = (SELECT id FROM subjects WHERE code = %s) AND prerequisites IS NOT NULL', (subject_code,))
+    courses = cursor.fetchall()
+    
+    # Loop through course
+    for course_id, prerequisites in courses:
+        # Ignore C- or better
+        prerequisites = prerequisites.replace(' C- or better', '')
         
-        for prereq in prereqs:
-            cursor.execute('SELECT id FROM courses WHERE course_code = %s', (prereq,))
-            prereq_id = cursor.fetchone()
+        # Parse "and"
+        prerequisites = prerequisites.split(';')
+        
+        # Parse each disjunction
+        for prerequisite in prerequisites:
             
-            if prereq_id is None:
-                continue
-            
-            prereq_id = prereq_id[0]
-            
-            cursor.execute('INSERT INTO prerequisites (course_id, prerequisite_id) VALUES (%s, %s)', (course_id, prereq_id))
-            
+            # Extract courses
+            prereq_course = re.findall(r'[A-Z]{3} [0-9]{3}[A-Z]{,2}', prerequisite)
+            for course in prereq_course:
+                
+                # Get course_id if exists and insert into database
+                cursor.execute('SELECT id FROM courses WHERE course_code = %s', (course,))
+                prerequisite_id = cursor.fetchone()
+                if prerequisite_id is None:
+                    continue
+                prerequisite_id = prerequisite_id[0]
+                cursor.execute('INSERT INTO prerequisites (course_id, prerequisite_id) VALUES (%s, %s)', (course_id, prerequisite_id))
+    
     database.commit()
     cursor.close()
     database.close()
     
     return 0
+
+if __name__ == '__main__':
+    process_prerequisites('EAE')
