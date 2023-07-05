@@ -22,14 +22,15 @@ def get_subjects():
     for subject in subjects:
         # Replace zero-width space
         subject.text.replace('\u200b', '')
+
+        # Extract name and code
+        subject_name, subject_code = re.search(r'(.+) \(([A-Z]{3})\)', subject.text).groups()
         
-        if subject in IGNORE_SUBJECTS:
-            print('Ignoring subject', subject.text)
+        if subject_code in IGNORE_SUBJECTS:
+            print(f'Ignoring {subject_code}')
             continue
         
-        # Extract name and code
-        name, code = re.search(r'(.+) \(([A-Z]{3})\)', subject.text).groups()
-        cursor.execute('INSERT INTO subjects (code, subject_name) VALUES (%s, %s)', (code, name))
+        cursor.execute('INSERT INTO subjects (code, subject_name) VALUES (%s, %s)', (subject_code, subject_name))
         
     database.commit()
     cursor.close()
@@ -52,6 +53,3 @@ def get_subject_html(subject_code):
     courses = soup.find_all('div', {'class': 'courseblock'})
         
     return courses
-
-if __name__ == '__main__':
-    get_subject_html('EAE')
