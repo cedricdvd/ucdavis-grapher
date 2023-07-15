@@ -7,6 +7,11 @@ def process_courses(subject_html, subject_obj):
     for course in subject_html:
         soup = bs(str(course), 'html.parser')
         course_code = soup.find('span', {'class': 'detail-code'}).text.strip()
+        
+        # Skip objects already in database
+        if Course.objects.filter(code=course_code).exists():
+            continue
+        
         title = soup.find('span', {'class': 'detail-title'}).text.strip()[2:]
         description = soup.find('p', {'class': 'courseblockextra noindent'}).text.strip()
         description = description.removeprefix('Course Description: ')
