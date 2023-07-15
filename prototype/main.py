@@ -8,7 +8,7 @@ import time
 def main():
     database, cursor = connect_database()
     
-    with open('sql/create_subjects.sql', 'r') as file:
+    with open('prototype/sql/create_subjects.sql', 'r') as file:
         create_table = file.read()
         
     cursor.execute(create_table)
@@ -21,7 +21,7 @@ def main():
         print('Subjects already in database.')
     
     
-    with open('sql/create_courses.sql', 'r') as file:
+    with open('prototype/sql/create_courses.sql', 'r') as file:
         create_table = file.read()
         
     cursor.execute(create_table)
@@ -49,7 +49,7 @@ def main():
         print(f'Completed {subject_code} courses.')
         time.sleep(0.5) # NOTE: prevent too many calls to requests
     
-    with open('sql/create_prerequisites.sql', 'r') as file:
+    with open('prototype/sql/create_prerequisites.sql', 'r') as file:
         create_table = file.read()
         
     cursor.execute(create_table)
