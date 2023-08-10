@@ -1,12 +1,12 @@
 import React from 'react';
 import axios from 'axios';
 
-class Course extends React.Component {
+class Department extends React.Component {
 
     state = { details : []}
 
     componentDidMount() {
-        axios.get("http://localhost:8000/api/search-courses/EAE 143A")
+        axios.get("http://localhost:8000/api/get-subjects")
         .then(response => {
             this.setState({ details : response.data })
         })
@@ -22,14 +22,15 @@ class Course extends React.Component {
                     Data Generated from Course Details
                 </header>
                 <hr></hr>
-                <h1>{this.state.details.code}</h1>
-                <h2>{this.state.details.title}</h2>
-                <p>{this.state.details.description}</p>
-                <p>{this.state.details.prerequisites}</p>
+                {this.state.details.map((detail) => (
+                    <li key={detail.id}>
+                        {detail.name} ({detail.code})
+                    </li>
+                ))}
             </div>
         )
     }
 
 }
 
-export default Course;
+export default Department;

@@ -1,13 +1,13 @@
 import React from "react";
+import SearchBar from '../components/SearchBar';
 
-class Home extends React.Component {
-
-    render() {
-        return (
-            <div>Home Page</div>
-        );
-    }
-
+function Home() {
+    return (
+        <>
+            <div>Welcome to CoGA: The UC Davis Course Grapher Application</div>
+            <SearchBar />
+        </>
+    );
 }
 
 export default Home;

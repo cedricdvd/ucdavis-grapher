@@ -2,9 +2,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.getData),
-    path('subject-details/<str:subj>', views.subjectDetail),
-    path('subject-courses/<str:subj>', views.subjectCourses),
-    path('course-details/<str:course_code>', views.courseDetails),
-    path('prerequisite-details/<str:course_code>', views.prerequisiteDetails)
+    path('get-subjects', views.getSubjects),
+    path('subject-courses/<str:subject_code>', views.getSubjectCourses),
+    path('search-courses/<str:keyword>', views.searchCourses),
+    path('prerequisite-details/<str:course_code>', views.getCoursePrerequisites),
 ]
