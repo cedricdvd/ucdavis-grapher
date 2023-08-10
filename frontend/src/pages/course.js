@@ -1,35 +1,46 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
-class Course extends React.Component {
-
-    state = { details : []}
-
-    componentDidMount() {
-        axios.get("http://localhost:8000/api/search-courses/EAE 143A")
-        .then(response => {
-            this.setState({ details : response.data })
+function Course() {
+    const [courseObj, setCourseObj] = useState({});
+    const [prerequisites, setPrerequisites] = useState([]);
+    const { courseCode } = useParams();
+    useEffect(() => {
+        axios.get(`http://localhost:8000/api/get-course/${courseCode}`)
+        .then(results => {
+            setCourseObj(results.data);
         })
         .catch(error => {
             console.log(error)
+        });
+
+        axios.get(`http://localhost:8000/api/prerequisite-details/${courseCode}`)
+        .then(results => {
+            setPrerequisites(results.data);
         })
-    }
+        .catch(error => {
+            console.log(error)
+        });
 
-    render() {
-        return (
-            <div>
-                <header>
-                    Data Generated from Course Details
-                </header>
-                <hr></hr>
-                <h1>{this.state.details.code}</h1>
-                <h2>{this.state.details.title}</h2>
-                <p>{this.state.details.description}</p>
-                <p>{this.state.details.prerequisites}</p>
+    }, [courseCode]);
+
+    return (
+        <div>
+            <header>Data Generated from Course Details</header>
+            <hr></hr>
+            <h1>{courseObj.code}</h1>
+            <h2>{courseObj.title}</h2>
+            <p>{courseObj.description}</p>
+            <p>{courseObj.prerequisites}</p>
+            <div className="prerequisite">
+                {prerequisites.map((course, idx) => {
+                    return <li key={idx}>{course.prerequisite_code}</li>;
+                })}
             </div>
-        )
-    }
+        </div>
+    );
+};
 
-}
 
 export default Course;

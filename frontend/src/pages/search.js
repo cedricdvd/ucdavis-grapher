@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 
 function Search() {
     const [searchParams] = useSearchParams();
@@ -22,7 +22,9 @@ function Search() {
     return (
         <div>
             {details.map(result => (
-                <li key={result.id}>{result.code}</li>
+                <li key={result.id}>
+                    <Link to={`/course/${result.code}`}>{result.code} - {result.title}</Link>
+                </li>
             ))}
         </div>
     );
