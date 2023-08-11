@@ -13,8 +13,7 @@ class PrerequisiteSerializer(serializers.ModelSerializer):
         model = Prerequisite
         fields = '__all__'
 
-class CourseSerializer(serializers.ModelSerializer):
-    
+class CourseSerializer(serializers.ModelSerializer):    
     class Meta:
         model = Course
         fields = '__all__'

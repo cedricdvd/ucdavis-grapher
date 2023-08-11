@@ -1,35 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
-class Department extends React.Component {
+function Department() {
 
-    state = { details : []}
+    const [ departments, setDepartments ] = useState([]);
 
-    componentDidMount() {
-        axios.get("http://localhost:8000/api/get-subjects")
+    useEffect(() => {
+        axios.get('http://localhost:8000/api/get-subjects')
         .then(response => {
-            this.setState({ details : response.data })
+            setDepartments(response.data);
         })
         .catch(error => {
             console.log(error)
-        })
-    }
+        });
+    }, []);
 
-    render() {
-        return (
-            <div>
-                <header>
-                    Data Generated from Course Details
-                </header>
-                <hr></hr>
-                {this.state.details.map((detail) => (
-                    <li key={detail.id}>
+
+    return (
+        <div>
+            <header>
+                Data Generated from Course Details
+            </header>
+            <hr></hr>
+            {departments.map((detail) => (
+                <li key={detail.id}>
+                    <Link to={`https://catalog.ucdavis.edu/courses-subject-code/${detail.code.toLowerCase()}`}>
                         {detail.name} ({detail.code})
-                    </li>
-                ))}
-            </div>
-        )
-    }
+                    </Link>
+                </li>
+            ))}
+        </div>
+    );
 
 }
 

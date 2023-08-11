@@ -36,8 +36,16 @@ def getCourse(request, keyword):
 
 
 @api_view(['GET'])
-def getCoursePrerequisites(request, course_code):
+def getPrerequisites(request, course_code):
     course = Course.objects.get(code=course_code)
     prerequisites = Prerequisite.objects.filter(course_id=course.id)
+    serializer = PrerequisiteSerializer(prerequisites, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def getSuccessors(request, course_code):
+    course = Course.objects.get(code=course_code)
+    prerequisites = Prerequisite.objects.filter(prerequisite_id=course.id)
     serializer = PrerequisiteSerializer(prerequisites, many=True)
     return Response(serializer.data)

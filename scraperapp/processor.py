@@ -72,7 +72,6 @@ def parse_groups(prerequisite_list):
 def process_group(group_num, group, course_obj, subject_obj):
     for prerequisite_code in group:
         try:
-            print(prerequisite_code, Course.objects.filter(code=prerequisite_code))
             prerequisite_obj = Course.objects.get(code=prerequisite_code)
         except Course.DoesNotExist:
             prerequisite_obj = None
@@ -80,6 +79,7 @@ def process_group(group_num, group, course_obj, subject_obj):
         prerequisite_object = Prerequisite(
             subject_id  = subject_obj,
             course_id = course_obj,
+            course_code = course_obj.code,
             prerequisite_id = prerequisite_obj,
             prerequisite_code = prerequisite_code,
             group_num = group_num

@@ -23,6 +23,7 @@ class Course(models.Model):
 
 class Prerequisite(models.Model):
     subject_id = models.ForeignKey(Subject, default=-1, on_delete=models.CASCADE, related_name='subject_id')
+    course_code = models.CharField(max_length=20)
     course_id = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='course_id')
     prerequisite_id = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='prerequisite_id', null=True)
     prerequisite_code = models.CharField(max_length=20)

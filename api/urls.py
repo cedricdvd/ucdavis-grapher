@@ -6,5 +6,6 @@ urlpatterns = [
     path('subject-courses/<str:subject_code>', views.getSubjectCourses),
     path('search-courses/<str:keyword>', views.searchCourses),
     path('get-course/<str:keyword>', views.getCourse),
-    path('prerequisite-details/<str:course_code>', views.getCoursePrerequisites),
+    path('get-prerequisites/<str:course_code>', views.getPrerequisites),
+    path('get-successors/<str:course_code>', views.getSuccessors)
 ]
