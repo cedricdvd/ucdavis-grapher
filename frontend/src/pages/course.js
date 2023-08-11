@@ -38,13 +38,9 @@ function Course() {
 
     return (
         <div>
-            <header>Data Generated from Course Details</header>
-            <hr></hr>
-            <h1>{courseObj.code}</h1>
-            <h2>{courseObj.title}</h2>
-            <p>{courseObj.description}</p>
-            <p>{courseObj.prerequisites}</p>
-            <h2>Prerequisites</h2>
+            <h1>{`${courseObj.code} - ${courseObj.title}`}</h1>
+            <p>{`${courseObj.description} ${courseObj.prerequisites}.`}</p>
+            <h2>{prerequisites.length ? 'Prerequisites' : null }</h2>
             <div className="prerequisite-list">
                 {prerequisites.map((course, idx) => {
                     return (
@@ -56,7 +52,7 @@ function Course() {
                     );
                 })}
             </div>
-            <h2>Needed By</h2>
+            <h2>{successors.length ? 'Needed By' : null }</h2>
             <div className="successor-list">
                 {successors.map((course, idx) => {
                     return (

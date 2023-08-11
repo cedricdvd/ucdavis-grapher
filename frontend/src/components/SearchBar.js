@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-// import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import './styles/SearchBar.css';
 
 function SearchBar() {
     const [input, setInput] = useState('');
@@ -21,7 +21,7 @@ function SearchBar() {
     }
 
     return (
-        <div className="input-wrapper">
+        <div className="search-bar">
             <input placeholder="Type to search..."
                 value={input}
                 onChange={(e) => handleChange(e)}

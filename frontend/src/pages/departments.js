@@ -18,15 +18,11 @@ function Department() {
 
 
     return (
-        <div>
-            <header>
-                Data Generated from Course Details
-            </header>
-            <hr></hr>
+        <div className="departments-list">
             {departments.map((detail) => (
-                <li key={detail.id}>
+                <li key={detail.id} className="department-link">
                     <Link to={`https://catalog.ucdavis.edu/courses-subject-code/${detail.code.toLowerCase()}`}>
-                        {detail.name} ({detail.code})
+                        {`${detail.name} (${detail.code})`}
                     </Link>
                 </li>
             ))}
