@@ -1,8 +1,34 @@
 header {
     padding: 8px;
-    text-align: right;
+    display: flex;
+    justify-content: space-between;
+    text-align: center;
+    background-color: #ECEFF4;
 }
 
-a {
-    margin: 4px;
+.nav-links {
+    flex: 1;
+    text-align: right;
+    vertical-align: center;
+    align-self: center;
+}
+
+.nav-title {
+    padding: 5px 0px;
+    border-radius: 5px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.nav-link {
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.nav-title:hover, .nav-link:hover {
+    background-color: #D8DEE9;
+}
+
+.nav-title-link, .nav-link {
+    color: #2E3440;
 }

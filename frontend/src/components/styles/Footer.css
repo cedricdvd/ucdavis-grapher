@@ -1,8 +1,17 @@
 footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    text-align: left;
     padding: 8px;
+    font-size: 14px;
+    background-color: #ECEFF4;
+    color: #4C566A;
+}
+
+div {
+    padding: 2.5px;
+}
+
+.footer-link {
+    color: #4C566A;
+    padding: 3px 5px;
+    border-radius: 5px;
+    margin: 0px;
 }

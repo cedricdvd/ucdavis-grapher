@@ -9,16 +9,20 @@ import Course from './pages/course';
 import Department from './pages/departments'
 import Search from './pages/search'
 
+import './App.css';
+
 function App() {
       return (
         <Router>
             <NavBar />
-            <Routes>
-                <Route path='/' element={<Home />} />
-                <Route path='/departments' element={<Department />} />
-                <Route path='/course/:courseCode' element={<Course />} />
-                <Route path='/search' element={<Search />} />
-            </Routes>
+            <main>
+                <Routes>
+                    <Route path='/' element={<Home />} />
+                    <Route path='/departments' element={<Department />} />
+                    <Route path='/course/:courseCode' element={<Course />} />
+                    <Route path='/search' element={<Search />} />
+                </Routes>
+            </main>
             <Footer />
         </Router>
       );

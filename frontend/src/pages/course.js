@@ -8,6 +8,7 @@ function Course() {
     const [courseObj, setCourseObj] = useState({});
     const [prerequisites, setPrerequisites] = useState([]);
     const [successors, setSuccessors] = useState([]);
+    const [isLoading, setLoading] = useState(true);
     const { courseCode } = useParams();
 
     useEffect(() => {
@@ -30,16 +31,26 @@ function Course() {
         axios.get(`http://localhost:8000/api/get-successors/${courseCode}`)
         .then(results => {
             setSuccessors(results.data);
+            setLoading(false);
         })
         .catch(error => {
             console.log(error)
+            setLoading(false);
         });
     }, [courseCode]);
 
+    if (isLoading) {
+        return (
+            <div className="course-page">
+                <h1>Loading...</h1>
+            </div>
+        );
+    }
+
     return (
-        <div>
+        <div className="course-page">
             <h1>{`${courseObj.code} - ${courseObj.title}`}</h1>
-            <p>{`${courseObj.description} ${courseObj.prerequisites}.`}</p>
+            <p>{`${courseObj.description}${(prerequisites.length) ? ` ${courseObj.prerequisites}.` : ''}`}</p>
             <h2>{prerequisites.length ? 'Prerequisites' : null }</h2>
             <div className="prerequisite-list">
                 {prerequisites.map((course, idx) => {

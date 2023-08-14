@@ -1,3 +1,21 @@
-.prerequisite-course.disabled {
+h1, h2 {
+    padding: 0 30px;
+}
+
+p {
+    padding: 0 50px;
+}
+
+.prerequisite-list, .successor-list {
+    list-style-type: none;
+    padding: 0 50px;
+}
+
+.successor-list {
+    columns: 2;
+}
+
+.prerequisite-course.disabled a {
     pointer-events: none;
+    color: #81A1C1;
 }

@@ -4,12 +4,15 @@ import './styles/NavBar.css';
 
 function NavBar() {
     return (
-        <div className="NavBar">
-            <header>
-                <Link to="/">Home</Link>
-                <Link to="/departments">Departments</Link>
-            </header>
-        </div>
+        <header>
+            <div className="nav-title">
+                <Link to="/" className="nav-title-link">CoGA</Link>
+            </div>
+            <div className="nav-links">
+                <Link to="/" className="nav-link">Home</Link>
+                <Link to="/departments" className="nav-link">Departments</Link>
+            </div>
+        </header>
     );
 };
 
