@@ -1,0 +1,30 @@
+.course-node {
+    background-color: #4C566A;
+    border-radius: 5px;
+    display: inline-grid;
+    padding: 5px;
+    text-align: center;
+}
+
+.course-button {
+    color: #2E3440;
+    background-color: #FFFFFF;
+    margin: 2px;
+    padding: 5px;
+    border: 0px;
+    border-radius: 5px;
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.course-button:hover {
+    background-color: #D8DEE9;
+}
+
+.course-button.disabled {
+    color: #81A1C1;
+    background-color: #ECEFF4;
+    cursor: default;
+}

@@ -9,13 +9,19 @@ p {
 .prerequisite-list, .successor-list {
     list-style-type: none;
     padding: 0 50px;
-}
-
-.successor-list {
-    columns: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
 }
 
 .prerequisite-course.disabled a {
     pointer-events: none;
     color: #81A1C1;
+}
+
+.prerequisite-map {
+    background-color: #D8DEE9;
+    border-radius: 20px;
+    margin: 0px 50px;
+    padding: 50px;
+
 }

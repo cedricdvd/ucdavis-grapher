@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
-
+import CourseNode from '../components/CourseNode';
 import './styles/course.css';
 
 function Course() {
@@ -22,7 +22,32 @@ function Course() {
 
         axios.get(`http://localhost:8000/api/get-prerequisites/${courseCode}`)
         .then(results => {
-            setPrerequisites(results.data);
+            let groups = [];
+            let group = [];
+            let groupNum = 0;
+
+            for (let i = 0; i < results.data.length; i++) {
+                if (results.data[i].group_num === groupNum) {
+                    group.push({
+                        'code': results.data[i].prerequisite_code,
+                        'id': results.data[i].prerequisite_id
+                    });
+                }
+                else {
+                    groups.push(group);
+                    group = [{
+                        'code': results.data[i].prerequisite_code,
+                        'id': results.data[i].prerequisite_id
+                    }];
+                    groupNum = results.data[i].group_num;
+                }
+            }
+
+            if (group.length > 0) {
+                groups.push(group);
+            }
+
+            setPrerequisites(groups);
         })
         .catch(error => {
             console.log(error)
@@ -53,14 +78,30 @@ function Course() {
             <p>{`${courseObj.description}${(prerequisites.length) ? ` ${courseObj.prerequisites}.` : ''}`}</p>
             <h2>{prerequisites.length ? 'Prerequisites' : null }</h2>
             <div className="prerequisite-list">
-                {prerequisites.map((course, idx) => {
+                {prerequisites.map((group, group_num) => {
                     return (
-                        <li key={idx} className={'prerequisite-course' + (course.prerequisite_id ? '' : ' disabled')}>
-                            <Link to={`/course/${course.prerequisite_code}`}>
-                                {course.prerequisite_code}
-                            </Link>
-                        </li>
+                        <div className="group-list" key={group_num}>
+                            <h3>Group {group_num}</h3>
+                            {
+                                group.map((course, course_idx) => {
+                                    return (
+                                        <li key={course_idx} className={'prerequisite-course' + (course.id ? '' : ' disabled')}>
+                                            <Link to={(course.id ? `/course/${course.code}` : null)}>
+                                                {course.code}
+                                            </Link>
+                                        </li>
+                                    );
+                                })
+                            }
+                        </div>
                     );
+                })}
+            </div>
+            <h2>Prerequisite Map</h2>
+            <div className="prerequisite-map">
+                <CourseNode group_arr={[{"code": courseObj.code, "id": courseObj.id}]} group_idx={-1} />
+                {prerequisites.map((group, group_num) => {
+                    return <CourseNode group_arr={group} group_idx={group_num} />;
                 })}
             </div>
             <h2>{successors.length ? 'Needed By' : null }</h2>
