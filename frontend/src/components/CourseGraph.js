@@ -15,6 +15,11 @@ function CourseGraph({ root_course, prerequisite_arr }) {
         []
     );
 
+
+    function getData(details) {
+        console.log(`Child deatils: ${details}`);
+    }
+
     useEffect(() => {
         const width = ref.current.clientWidth;
         const xShift = Math.floor(prerequisite_arr.length / 2) - (prerequisite_arr.length % 2 === 0 ? 0.5 : 0);
@@ -22,7 +27,7 @@ function CourseGraph({ root_course, prerequisite_arr }) {
             (group_arr, group_idx) => (
                 {
                     id: `${group_idx + 1}`,
-                    data: { group : group_arr },
+                    data: { group : group_arr, sendData : getData },
                     position: {x : Math.floor(width / 2) + 200 * (group_idx - xShift), y: 150 },
                     type: 'prerequisiteNode'
                 }
@@ -50,6 +55,15 @@ function CourseGraph({ root_course, prerequisite_arr }) {
 
         setEdges(prerequisite_edges);
     });
+
+    function addLevel() {
+        return;
+    };
+
+    function removeLevel() {
+        return;
+    };
+
 
     return (
         <div ref={ref} className="prerequisite-map">
