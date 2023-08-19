@@ -1,4 +1,4 @@
-.course-node {
+.root-node, .prerequisite-node {
     background-color: #4C566A;
     border-radius: 5px;
     display: inline-grid;
@@ -6,7 +6,7 @@
     text-align: center;
 }
 
-.course-button {
+.root-label, .course-button {
     color: #2E3440;
     background-color: #FFFFFF;
     margin: 2px;
@@ -16,6 +16,10 @@
     display: inline-block;
     text-align: center;
     vertical-align: middle;
+    font-size: 12px;
+}
+
+.course-button {
     cursor: pointer;
 }
 
@@ -27,4 +31,16 @@
     color: #81A1C1;
     background-color: #ECEFF4;
     cursor: default;
+}
+
+
+.root-node label {
+  display: block;
+  color: #777;
+  font-size: 12px;
+}
+
+.prerequisite-node {
+    flex-grow: 0;
+    flex-basis: 0;
 }

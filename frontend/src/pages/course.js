@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
-import CourseNode from '../components/CourseNode';
+import CourseGraph from '../components/CourseGraph';
 import './styles/course.css';
 
 function Course() {
@@ -98,12 +98,7 @@ function Course() {
                 })}
             </div>
             <h2>Prerequisite Map</h2>
-            <div className="prerequisite-map">
-                <CourseNode group_arr={[{"code": courseObj.code, "id": courseObj.id}]} group_idx={-1} />
-                {prerequisites.map((group, group_num) => {
-                    return <CourseNode group_arr={group} group_idx={group_num} />;
-                })}
-            </div>
+            <CourseGraph root_course={courseObj} prerequisite_arr={prerequisites} />
             <h2>{successors.length ? 'Needed By' : null }</h2>
             <div className="successor-list">
                 {successors.map((course, idx) => {

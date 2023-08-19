@@ -18,10 +18,11 @@ p {
     color: #81A1C1;
 }
 
-.prerequisite-map {
-    background-color: #D8DEE9;
-    border-radius: 20px;
-    margin: 0px 50px;
-    padding: 50px;
 
+.child-nodes {
+    margin: 50px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
 }
