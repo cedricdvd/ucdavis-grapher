@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import RootNode from './graph-nodes/RootNode.js';
 import PrerequisiteNode from './graph-nodes/PrerequisiteNode.js';
-import ReactFlow, { Background, Controls } from 'reactflow';
+import ReactFlow, { Controls } from 'reactflow';
 import 'reactflow/dist/style.css';
 import './styles/CourseGraph.css';
 
@@ -54,7 +54,7 @@ function CourseGraph({ root_course, prerequisite_arr }) {
         ]);
 
         setEdges(prerequisite_edges);
-    });
+    }, [ref, prerequisite_arr, root_course]);
 
     function addLevel() {
         return;

@@ -1,11 +1,23 @@
 # UC Davis Grapher
 
+A web application designed to help students plan their course schedules by
+providing a visual representation of prerequisites.
+
+In no way is this project affiliated or endorsed by the University of
+California, Davis.
+
 ## Basic Setup
 
 Set up Virtual Environment
 
 ```zsh
 source .venv/bin/activate
+```
+
+Install pip requirements
+
+```zsh
+pip install -r requirements
 ```
 
 Scrape Data
@@ -19,6 +31,12 @@ Run Backend Server
 
 ```zsh
 python manage.py runserver
+```
+
+Install npm packages
+
+```zsh
+npm install
 ```
 
 Run Frontend
