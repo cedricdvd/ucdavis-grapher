@@ -6,3 +6,4 @@ Django
 mysqlclient
 django-cors-headers
 djangorestframework
+pymysql
