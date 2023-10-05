@@ -8,7 +8,7 @@ function Department() {
     const [ isLoading, setLoading ] = useState(true);
 
     useEffect(() => {
-        axios.get('http://localhost:8000/api/get-subjects')
+        axios.get('http://127.0.0.1:8000/api/get-subjects')
         .then(response => {
             setDepartments(response.data);
             setLoading(false);

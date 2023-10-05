@@ -17,7 +17,7 @@ function PrerequisiteNode ({ data }) {
         }
         setPrerequisiteId(idx);
 
-        axios.get(`http://localhost:8000/api/get-prerequisites/${courseObj.code}`)
+        axios.get(`http://127.0.0.1:8000/api/get-prerequisites/${courseObj.code}`)
         .then(results => {
 
             let groups = [];

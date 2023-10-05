@@ -12,7 +12,7 @@ function Course() {
     const { courseCode } = useParams();
 
     useEffect(() => {
-        axios.get(`http://localhost:8000/api/get-course/${courseCode}`)
+        axios.get(`http://127.0.0.1:8000/api/get-course/${courseCode}`)
         .then(results => {
             setCourseObj(results.data);
         })
@@ -20,7 +20,7 @@ function Course() {
             console.log(error)
         });
 
-        axios.get(`http://localhost:8000/api/get-prerequisites/${courseCode}`)
+        axios.get(`http://127.0.0.1:8000/api/get-prerequisites/${courseCode}`)
         .then(results => {
             let groups = [];
             let group = [];
@@ -53,7 +53,7 @@ function Course() {
             console.log(error)
         });
 
-        axios.get(`http://localhost:8000/api/get-successors/${courseCode}`)
+        axios.get(`http://127.0.0.1:8000/api/get-successors/${courseCode}`)
         .then(results => {
             setSuccessors(results.data);
             setLoading(false);

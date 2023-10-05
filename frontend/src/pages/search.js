@@ -13,7 +13,7 @@ function Search() {
     const [ details, setDetails ] = useState([]);
 
     useEffect(() => {
-        axios.get(`http://localhost:8000/api/search-courses/${courseQuery}`)
+        axios.get(`http://127.0.0.1:8000/api/search-courses/${courseQuery}`)
         .then(results => {
             setDetails(results.data);
             setLoading(false);
