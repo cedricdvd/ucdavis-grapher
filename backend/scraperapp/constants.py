@@ -1,9 +1,9 @@
 # URLs
 CATALOG_URL = 'https://catalog.ucdavis.edu/home/'
-SUBJECT_URL = 'https://catalog.ucdavis.edu/courses-subject-code/{}/'
+SUBJECT_URL_FORMAT = 'https://catalog.ucdavis.edu/courses-subject-code/{}/'
 
 # Database handling
-IGNORE_SUBJECTS = [
+IGNORED_SUBJECTS = [
     'MMG', # Courses coming soon
     'DVM', # Courses are not displayed
 ]

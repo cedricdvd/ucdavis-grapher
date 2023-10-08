@@ -1,46 +1,53 @@
-from .models import Subject
-
-from .constants import CATALOG_URL, SUBJECT_URL, IGNORE_SUBJECTS
 from bs4 import BeautifulSoup as bs
+from .models import Subject
+from .constants import CATALOG_URL, SUBJECT_URL_FORMAT, IGNORED_SUBJECTS
 import requests
 import re
 
-
-def get_subjects():
-    page = requests.get(CATALOG_URL)
+class WebCrawler:
     
-    if page.status_code != 200:
-        print('Error: Could not connect to catalog.ucdavis.edu')
-        return 1
-    
-    soup = bs(page.content, 'html.parser')
-    subjects = soup.find_all('a', {'href': re.compile(r'^/courses-subject-code/[a-z]+')})
-    
-    for subject in subjects:
-        # Replace zero-width space
-        subject.text.replace('\u200b', '')
-
-        # Extract name and code
-        subject_name, subject_code = re.search(r'(.+) \(([A-Z]{3})\)', subject.text).groups()
+    def __init__(self):
+        self.subjects = []
+        self.SUBJECT_URL_PATTERN = re.compile(r'^/courses-subject-code/[a-z]+')
+        self.SUBJECT_LISTING_PATTERN = re.compile(r'(.+) \(([A-Z]{3})\)')
         
-        if subject_code in IGNORE_SUBJECTS:
-            print(f'Ignoring {subject_code}')
-            continue
+    def request_subjects(self):
+        content = self.request_page_content(CATALOG_URL)
         
-        subject_object = Subject(code=subject_code, name=subject_name)
-        subject_object.save()
-    
-    return 0
+        if content is None:
+            return None
+        
+        # Grab url pattern
+        soup = bs(content, 'html.parser')
+        subject_arr = soup.find_all('a', {'href': self.SUBJECT_URL_PATTERN})
+        
+        for subject in subject_arr:
+            # Replace zero-width space
+            subject_str = subject.text.replace('\u200b', '')
 
-def get_subject_html(subject_obj):
-    subject_code = subject_obj.code
-    url = SUBJECT_URL.format(subject_code.lower())
+            # Extract name and code
+            title, code = re.search(self.SUBJECT_LISTING_PATTERN, subject_str).groups()
+            
+            if code in IGNORED_SUBJECTS:
+                print(f'Ignoring {code}')
+                continue
+            
+            # Saves subject to database and adds to list
+            subject_object = Subject(code=code, name=title)
+            subject_object.save()
+            self.subjects.append(subject_object)
+            
+        return self.subjects
+        
+    def request_subject_html(self, code):
+        url = SUBJECT_URL_FORMAT.format(code.lower())
+        return self.request_page_content(url)
     
-    page = requests.get(url)
-    
-    if page.status_code != 200:
-        print(f'Error: Could not connect to {url}')
-        return None
-    
-    soup = bs(page.content, 'html.parser')
-    return soup.find_all('div', {'class': 'courseblock'})
+    def request_page_content(self, url):
+        page = requests.get(url)
+        
+        if page.status_code != 200:
+            print(f'Error: Could not connect to {url}')
+            return None
+        
+        return page.content
