@@ -104,60 +104,86 @@ def process_course(course_html, subject_obj):
 
 def process_prerequisites(subjects):
 
-    for obj in subjects:
+    prereq_count = 0
+    length = len(subjects)
+
+    for i, obj in enumerate(subjects):
+        print(f'\rProcessed {i}/{length} subject prerequisites. Total count: {prereq_count}', end='')
         courses = Course.objects.filter(subject=obj, prerequisites__isnull=False)
 
-        # for course in courses:
+        for course in courses:
+            prereq_count += process_prerequisite(course, obj)
+
+    print(f'\rProcessed {length}/{length} subject prerequisites. Total count: {prereq_count}')
 
 
-# def process_prerequisites(subject_obj):
-#     courses = Course.objects.filter(subject=subject_obj, prerequisites__isnull=False)
+def process_prerequisite(course_obj, subject_obj):
+    prereq_count = 0
+
+    prerequisite_string = course_obj.prerequisites.replace(' C- or better', '')
     
-#     for course in courses:
-#         # Get course id and prerequisites
-#         prerequisite_string = course.prerequisites.replace(' C- or better', '')
-        
-#         # Clean description, split CNF into separate disjunctions
-#         prerequisite_list = prerequisite_string.split(';')
-        
-#         # Splits prerequisite list into course groups
-#         groups = parse_groups(prerequisite_list)
-        
-#         # Processes each group into table
-#         for group_num, group in enumerate(groups):
-#             process_group(group_num, group, course, subject_obj)
-        
-        
-        
-# def parse_groups(prerequisite_list):
-#     groups = []
-#     for group in prerequisite_list:
-        
-#         # Extract courses
-#         prereqs = re.findall(r'[A-Z]{3} [0-9]{3}[A-Z]{,2}', group)
-        
-#         # Skip if no courses to process
-#         if len(prereqs) == 0:
-#             continue
-        
-#         groups.append(prereqs)
-        
-#     return groups
+    # Clean description, split CNF into separate disjunctions
+    prerequisite_list = prerequisite_string.split(';')
+    
+    # Splits prerequisite list into course groups
+    groups = parse_groups(prerequisite_list)
+    
+    # Processes each group into table
+    for group_num, group in enumerate(groups):
+        prereq_count += process_group(group_num, group, course_obj, subject_obj)
+
+    return prereq_count
 
 
-# def process_group(group_num, group, course_obj, subject_obj):
-#     for prerequisite_code in group:
-#         try:
-#             prerequisite_obj = Course.objects.get(code=prerequisite_code)
-#         except Course.DoesNotExist:
-#             prerequisite_obj = None
-            
-#         prerequisite_object = Prerequisite(
-#             subject_id  = subject_obj,
-#             course_id = course_obj,
-#             course_code = course_obj.code,
-#             prerequisite_id = prerequisite_obj,
-#             prerequisite_code = prerequisite_code,
-#             group_num = group_num
-#         )
-#         prerequisite_object.save()
+def parse_groups(prerequisite_list):
+    groups = []
+    for group in prerequisite_list:
+        
+        # Extract courses
+        prereqs = re.findall(r'[A-Z]{3} [0-9]{3}[A-Z]{,2}', group)
+        
+        # Skip if no courses to process
+        if len(prereqs) == 0:
+            continue
+        
+        groups.append(prereqs)
+        
+    return groups
+
+
+def process_group(group_num, group, course_obj, subject_obj):
+
+    for prerequisite_code in group:
+        # Check if course exists
+        try:
+            prerequisite_obj = Course.objects.get(code=prerequisite_code)
+        except Course.DoesNotExist:
+            prerequisite_obj = None
+
+        try:
+            obj = Prerequisite.objects.get(
+                course_id = course_obj,
+                prerequisite_id = prerequisite_obj,
+            )
+
+            setattr(obj, 'subject_id', subject_obj)
+            setattr(obj, 'course_id', course_obj)
+            setattr(obj, 'course_code', course_obj.code)
+            setattr(obj, 'prerequisite_id', prerequisite_obj)
+            setattr(obj, 'prerequisite_code', prerequisite_code)
+            setattr(obj, 'group_num', group_num)
+
+            obj.save()
+        except Prerequisite.DoesNotExist:
+            obj = Prerequisite(
+                subject_id  = subject_obj,
+                course_id = course_obj,
+                course_code = course_obj.code,
+                prerequisite_id = prerequisite_obj,
+                prerequisite_code = prerequisite_code,
+                group_num = group_num
+            )
+
+            obj.save()
+
+    return len(group)

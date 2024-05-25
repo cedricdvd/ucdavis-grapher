@@ -1,6 +1,4 @@
-# from .web_crawler import get_subjects, get_subject_html
-# from .processor import process_courses, process_prerequisites
-# from time import sleep, time
+from time import sleep, time
 from .models import Subject, Course, Prerequisite
 from .web_crawler import fetch_urls, store_results
 from .processor import process_catalog, process_subjects, process_prerequisites
@@ -22,21 +20,36 @@ def scrape_courses():
         url = SUBJECT_URL.format(subject.code.lower())
         urls.append((subject.code, url))
 
-    results = fetch_urls(urls, 0.25)
+    results = fetch_urls(urls, 1)
     subject_paths = store_results(os.path.join(DATA_DIR, SUBJECT_DIR), results)
     process_subjects(subject_paths)
     # paths = os.listdir(os.path.join(DATA_DIR, SUBJECT_DIR))
     # subs = [(file[:3], os.path.join(DATA_DIR, SUBJECT_DIR, file)) for file in paths]
 
 def scrape_prerequisites():
-    subject_path = os.path.join(DATA_DIR, SUBJECT_DIR)
+    # subject_path = os.path.join(DATA_DIR, SUBJECT_DIR)
     subjects = Subject.objects.all()
+    # files = os.listdir(os.path.join(DATA_DIR, SUBJECT_DIR))
+    # paths = [(file[:3], os.path.join(DATA_DIR, SUBJECT_DIR, file)) for file in files]
     process_prerequisites(subjects)
 
 def scrape_data():
-    # scrape_catalog()
-    # scrape_courses()
+    start, end = 0, 0
+
+    start = time()
+    scrape_catalog()
+    end = time()
+    print(f'TIME SCRAPING SUBJECTS: {end - start}')
+
+    start = time()
+    scrape_courses()
+    end = time()
+    print(f'TIME SCRAPING COURSES: {end - start}')
+
+    start = time()
     scrape_prerequisites()
+    end = time()
+    print(f'TIME SCRAPING SUBJECTS: {end - start}')
 
 
     # start, end = 0, 0
