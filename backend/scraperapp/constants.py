@@ -12,3 +12,6 @@ IGNORE_SUBJECTS = [
 # HTML Path
 DATA_DIR = './scraperapp/html_data'
 SUBJECT_DIR = 'subjects'
+LOG_DIR = './scraperapp/logs'
+
+MAX_WORKERS = 10

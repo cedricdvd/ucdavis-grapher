@@ -1,8 +1,18 @@
 from .models import Subject, Course, Prerequisite
 from .web_crawler import fetch_urls, store_to_file
-from .constants import IGNORE_SUBJECTS
+from .constants import IGNORE_SUBJECTS, LOG_DIR, MAX_WORKERS
 from bs4 import BeautifulSoup as bs
 import re
+import logging
+import os
+
+logger = logging.getLogger('processor')
+logging.basicConfig(
+    filename=os.path.join(LOG_DIR, 'scraperapp.log'),
+    filemode='a',
+    encoding='utf-8',
+    level=logging.DEBUG,
+)
 
 def create_soup(html_file_path):
     # Open HTML and read contents
@@ -20,12 +30,11 @@ def process_catalog(catalog_file):
     ignore_count = 0
 
     for i, subject in enumerate(subjects):
-        print(f'\rProcessed {i}/{length} subjects', end='')
         subject.text.replace('\u200b', '')
         subject_name, subject_code = re.search(r'(.+) \(([A-Z]{3})\)', subject.text).groups()
 
         if subject_code in IGNORE_SUBJECTS:
-            # print(f'Ignoring {subject_code}')
+            logger.debug(f'Ignoring {subject_code}')
             ignore_count += 1
             continue
 
@@ -35,22 +44,21 @@ def process_catalog(catalog_file):
             setattr(obj, 'code', subject_code)
             setattr(obj, 'name', subject_name)
             obj.save()
-            # print(f'Entry {subject_code} Updated')
+            logger.debug(f'Entry {subject_code} Updated')
         except Subject.DoesNotExist:
             obj = Subject(code=subject_code, name=subject_name)
             obj.save()
-            # print(f'Entry {subject_code} Saved')
-    print(f'\rProcessed {length}/{length} subjects. Ignored {ignore_count}.')
+            logger.debug(f'Entry {subject_code} Saved')
 
 def process_subjects(subject_paths):
     length = len(subject_paths)
     course_count = 0
 
     for i, (code, filepath) in enumerate(subject_paths):
-        print(f'\rProcessed {i}/{length} subject courses. Total count: {course_count}', end='')
         course_count += process_subject(code, filepath)
+        logger.debug(f'Processed {code} courses')
 
-    print(f'\rProcessed {length}/{length} subject courses. Total count: {course_count}')
+    logger.info(f'Processed {course_count} total courses')
 
 def process_subject(subject_code, filepath):
 
@@ -108,13 +116,14 @@ def process_prerequisites(subjects):
     length = len(subjects)
 
     for i, obj in enumerate(subjects):
-        print(f'\rProcessed {i}/{length} subject prerequisites. Total count: {prereq_count}', end='')
         courses = Course.objects.filter(subject=obj, prerequisites__isnull=False)
 
         for course in courses:
             prereq_count += process_prerequisite(course, obj)
 
-    print(f'\rProcessed {length}/{length} subject prerequisites. Total count: {prereq_count}')
+        logger.debug(f'Finished processing {obj.code} prerequisites')
+
+    logger.info(f'Processed {prereq_count} total prerequisites')
 
 
 def process_prerequisite(course_obj, subject_obj):
@@ -162,6 +171,7 @@ def process_group(group_num, group, course_obj, subject_obj):
 
         try:
             obj = Prerequisite.objects.get(
+                subject_id = subject_obj,
                 course_id = course_obj,
                 prerequisite_id = prerequisite_obj,
             )
