@@ -7,3 +7,6 @@ mysqlclient
 django-cors-headers
 djangorestframework
 pymysql
+aiohttp
+aiodns
+cryptography
