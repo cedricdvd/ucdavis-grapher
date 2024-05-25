@@ -21,8 +21,16 @@ async def async_fetch_url(session, name, url):
 
 async def async_fetch_urls(urls, rate_limit=1.0):
     async with aiohttp.ClientSession() as session:
-        tasks = [async_fetch_url(session, name, url) for name, url in urls]
+        # tasks = [async_fetch_url(session, name, url) for name, url in urls]
+        tasks = []
+        length = len(urls)
+        for i, (name, url) in enumerate(urls):
+            print(f'\rFetched {i}/{length} urls',end='')
+
+            tasks.append(async_fetch_url(session, name, url))
+            await asyncio.sleep(rate_limit)
         results = await asyncio.gather(*tasks, return_exceptions=True)
+        print(f'\rFetched {length}/{length} urls')
     return results
 
 def fetch_urls(urls, rate_limit=1.0):
@@ -36,7 +44,7 @@ def store_results(dir_path, results):
     filepaths = []
     for name, source_code in results:
         filepath = os.path.join(dir_path, f'{name}.html')
-        filepaths.append(filepath)
+        filepaths.append((name, filepath))
         store_to_file(filepath, source_code)
 
     return filepaths

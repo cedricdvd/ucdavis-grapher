@@ -10,5 +10,5 @@ IGNORE_SUBJECTS = [
 ]
 
 # HTML Path
-DATA_DIR = 'html_data'
+DATA_DIR = './scraperapp/html_data'
 SUBJECT_DIR = 'subjects'

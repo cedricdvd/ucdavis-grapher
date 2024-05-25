@@ -1,9 +1,9 @@
 # from .web_crawler import get_subjects, get_subject_html
 # from .processor import process_courses, process_prerequisites
-# from .models import Subject, Course, Prerequisite
 # from time import sleep, time
+from .models import Subject, Course, Prerequisite
 from .web_crawler import fetch_urls, store_results
-from .processor import process_catalog
+from .processor import process_catalog, process_subjects, process_prerequisites
 from .constants import *
 import os
 
@@ -11,13 +11,32 @@ def scrape_catalog():
     # Scrape Catalog Subjects
     os.makedirs(DATA_DIR, exist_ok=True)
     results = fetch_urls([('catalog', CATALOG_URL)])
-    catalog_path = store_results(os.path.join(DATA_DIR), results)[0]
+    catalog_path = store_results(os.path.join(DATA_DIR), results)[0][1]
     process_catalog(catalog_path)
 
+def scrape_courses():
+    os.makedirs(os.path.join(DATA_DIR, SUBJECT_DIR), exist_ok=True)
+    subjects = Subject.objects.all()
+    urls = []
+    for subject in subjects:
+        url = SUBJECT_URL.format(subject.code.lower())
+        urls.append((subject.code, url))
 
+    results = fetch_urls(urls, 0.25)
+    subject_paths = store_results(os.path.join(DATA_DIR, SUBJECT_DIR), results)
+    process_subjects(subject_paths)
+    # paths = os.listdir(os.path.join(DATA_DIR, SUBJECT_DIR))
+    # subs = [(file[:3], os.path.join(DATA_DIR, SUBJECT_DIR, file)) for file in paths]
+
+def scrape_prerequisites():
+    subject_path = os.path.join(DATA_DIR, SUBJECT_DIR)
+    subjects = Subject.objects.all()
+    process_prerequisites(subjects)
 
 def scrape_data():
-    scrape_catalog()
+    # scrape_catalog()
+    # scrape_courses()
+    scrape_prerequisites()
 
 
     # start, end = 0, 0
