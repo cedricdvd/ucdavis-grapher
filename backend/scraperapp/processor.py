@@ -53,38 +53,31 @@ def process_catalog(catalog_file):
             logger.debug(f'Entry {subject_code} Saved')
 
 def process_subjects(subject_paths):
-    length = len(subject_paths)
     course_count = 0
+    courses = []
 
-    # TODO: Parallelize
-    # for i, (code, filepath) in enumerate(subject_paths):
-    #     _, count = process_subject(code, filepath)
-    #     course_count += count
-    #     logger.debug(f'Processed {code} courses')
-
+    logger.debug('Begin extracting course html')
     with ThreadPoolExecutor() as executor:
-        futures = [executor.submit(process_subject, code, filepath) for code, filepath in subject_paths]
+        futures = [executor.submit(extract_courses, *task) for task in subject_paths]
+
         for future in as_completed(futures):
-            code, count = future.result()
-            logger.debug(f'Processed {code} courses')
-            course_count += count
+            courses.extend(future.result())
 
+    logger.debug('Begin storing courses in db')
+    with ThreadPoolExecutor() as executor:
+        futures = [executor.submit(process_course, *task) for task in courses]
 
+        for future in as_completed(futures):
+            course_count += 1
+    
     logger.info(f'Processed {course_count} total courses')
 
-def process_subject(subject_code, filepath):
-
+def extract_courses(subject_code, filepath):
     soup = create_soup(filepath)
     courses = soup.find_all('div', {'class': 'courseblock'})
-    obj = Subject.objects.get(code=subject_code)
-
-    # TODO: Parallelize
-    for course in courses:
-        process_course(course, obj)
-    # with ThreadPoolExecutor(MAX_THREADS) as executor:
-    #     executor.map(lambda x: process_course(x, obj), courses)
-
-    return subject_code, len(courses)
+    subject = Subject.objects.get(code=subject_code)
+    logger.debug(f'Extracted {subject_code} course html')
+    return [(course, subject) for course in courses]
 
 def process_course(course_html, subject_obj):
 
@@ -130,14 +123,7 @@ def process_prerequisites(subjects):
     prereq_count = 0
     length = len(subjects)
 
-    # parallelize
-    # for i, obj in enumerate(subjects):
-    #     courses = Course.objects.filter(subject=obj, prerequisites__isnull=False)
 
-    #     for course in courses:
-    #         prereq_count += process_prerequisite(course, obj)
-
-    #     logger.debug(f'Finished processing {obj.code} prerequisites')
     courses = []
     for obj in subjects:
         subj_courses = Course.objects.filter(subject=obj, prerequisites__isnull=False)
