@@ -18,7 +18,7 @@ def scrape_catalog():
     # Scrape Catalog Subjects
     os.makedirs(DATA_DIR, exist_ok=True)
     logger.debug('Fetching Catalog URL HTML')
-    results = fetch_urls([('catalog', '/')])
+    results = fetch_urls([('catalog', '/courses-subject-code/')])
     logger.debug('Storing Catalog HTML')
     catalog_path = store_results(os.path.join(DATA_DIR), results)[0][1]
     logger.debug('Processing catalog subjects')
@@ -35,12 +35,12 @@ def scrape_courses():
         urls.append((subject.code, url))
 
     logger.debug('Fetching subject pages')
-    # results = fetch_urls(urls, 1/50)
+    results = fetch_urls(urls, 1/50)
 
     logger.debug('Storing subject html')
-    # subject_paths = store_results(os.path.join(DATA_DIR, SUBJECT_DIR), results)
-    paths = os.listdir(os.path.join(DATA_DIR, SUBJECT_DIR))
-    subject_paths = [(file[:3], os.path.join(DATA_DIR, SUBJECT_DIR, file)) for file in paths]
+    subject_paths = store_results(os.path.join(DATA_DIR, SUBJECT_DIR), results)
+    # paths = os.listdir(os.path.join(DATA_DIR, SUBJECT_DIR))
+    # subject_paths = [(file[:3], os.path.join(DATA_DIR, SUBJECT_DIR, file)) for file in paths]
 
     logger.debug('Processing subject courses')
     process_subjects(subject_paths)
@@ -58,7 +58,7 @@ def scrape_data():
     start, end = 0, 0
 
     start = time()
-    # scrape_catalog()
+    scrape_catalog()
     end = time()
     logger.info(f'TIME SCRAPING SUBJECTS: {end - start}')
 
@@ -68,7 +68,7 @@ def scrape_data():
     logger.info(f'TIME SCRAPING COURSES: {end - start}')
 
     start = time()
-    # scrape_prerequisites()
+    scrape_prerequisites()
     end = time()
     logger.info(f'TIME SCRAPING PREREQUISITES: {end - start}')
 
