@@ -1,6 +1,8 @@
 # URLs
 CATALOG_URL = 'https://catalog.ucdavis.edu/courses-subject-code/'
-SUBJECT_URL = 'https://catalog.ucdavis.edu/courses-subject-code/{}/'
+SUBJECT_URL_FORMAT = 'https://catalog.ucdavis.edu/courses-subject-code/{}/'
+ASYNCIO_URL = 'https://catalog.ucdavis.edu'
+ASYNCIO_FORMAT = '/courses-subject-code/{}/'
 
 # Database handling
 IGNORE_SUBJECTS = [
