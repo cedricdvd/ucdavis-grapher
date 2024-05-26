@@ -14,4 +14,5 @@ DATA_DIR = './scraperapp/html_data'
 SUBJECT_DIR = 'subjects'
 LOG_DIR = './scraperapp/logs'
 
-MAX_WORKERS = 10
+MAX_THREADS = 32
+MAX_PROCESSES = 1

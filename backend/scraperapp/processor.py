@@ -1,10 +1,12 @@
 from .models import Subject, Course, Prerequisite
 from .web_crawler import fetch_urls, store_to_file
-from .constants import IGNORE_SUBJECTS, LOG_DIR, MAX_WORKERS
+from .constants import IGNORE_SUBJECTS, LOG_DIR, MAX_THREADS, MAX_PROCESSES
 from bs4 import BeautifulSoup as bs
 import re
 import logging
 import os
+
+from concurrent.futures import ThreadPoolExecutor, as_completed, ProcessPoolExecutor
 
 logger = logging.getLogger('processor')
 logging.basicConfig(
@@ -54,9 +56,19 @@ def process_subjects(subject_paths):
     length = len(subject_paths)
     course_count = 0
 
-    for i, (code, filepath) in enumerate(subject_paths):
-        course_count += process_subject(code, filepath)
-        logger.debug(f'Processed {code} courses')
+    # TODO: Parallelize
+    # for i, (code, filepath) in enumerate(subject_paths):
+    #     _, count = process_subject(code, filepath)
+    #     course_count += count
+    #     logger.debug(f'Processed {code} courses')
+
+    with ThreadPoolExecutor() as executor:
+        futures = [executor.submit(process_subject, code, filepath) for code, filepath in subject_paths]
+        for future in as_completed(futures):
+            code, count = future.result()
+            logger.debug(f'Processed {code} courses')
+            course_count += count
+
 
     logger.info(f'Processed {course_count} total courses')
 
@@ -66,10 +78,13 @@ def process_subject(subject_code, filepath):
     courses = soup.find_all('div', {'class': 'courseblock'})
     obj = Subject.objects.get(code=subject_code)
 
+    # TODO: Parallelize
     for course in courses:
         process_course(course, obj)
+    # with ThreadPoolExecutor(MAX_THREADS) as executor:
+    #     executor.map(lambda x: process_course(x, obj), courses)
 
-    return len(courses)
+    return subject_code, len(courses)
 
 def process_course(course_html, subject_obj):
 
@@ -115,13 +130,25 @@ def process_prerequisites(subjects):
     prereq_count = 0
     length = len(subjects)
 
-    for i, obj in enumerate(subjects):
-        courses = Course.objects.filter(subject=obj, prerequisites__isnull=False)
+    # parallelize
+    # for i, obj in enumerate(subjects):
+    #     courses = Course.objects.filter(subject=obj, prerequisites__isnull=False)
 
-        for course in courses:
-            prereq_count += process_prerequisite(course, obj)
+    #     for course in courses:
+    #         prereq_count += process_prerequisite(course, obj)
 
-        logger.debug(f'Finished processing {obj.code} prerequisites')
+    #     logger.debug(f'Finished processing {obj.code} prerequisites')
+    courses = []
+    for obj in subjects:
+        subj_courses = Course.objects.filter(subject=obj, prerequisites__isnull=False)
+        for course in subj_courses:
+            courses.append((course, obj))
+
+    with ThreadPoolExecutor() as executor:
+        futures = [executor.submit(process_prerequisite, *prereq_item) for prereq_item in courses]
+
+        for future in as_completed(futures):
+            prereq_count += future.result()
 
     logger.info(f'Processed {prereq_count} total prerequisites')
 

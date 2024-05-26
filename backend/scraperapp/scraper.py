@@ -35,15 +35,16 @@ def scrape_courses():
         urls.append((subject.code, url))
 
     logger.debug('Fetching subject pages')
-    results = fetch_urls(urls, 1)
+    # results = fetch_urls(urls, 1)
 
     logger.debug('Storing subject html')
     # subject_paths = store_results(os.path.join(DATA_DIR, SUBJECT_DIR), results)
 
     logger.debug('Processing subject courses')
-    # process_subjects(subject_paths)
-    # paths = os.listdir(os.path.join(DATA_DIR, SUBJECT_DIR))
-    # subs = [(file[:3], os.path.join(DATA_DIR, SUBJECT_DIR, file)) for file in paths]
+    paths = os.listdir(os.path.join(DATA_DIR, SUBJECT_DIR))
+    subject_paths = [(file[:3], os.path.join(DATA_DIR, SUBJECT_DIR, file)) for file in paths]
+    process_subjects(subject_paths)
+    
 
 def scrape_prerequisites():
     logger.debug('Getting subejcts from db')
@@ -62,12 +63,12 @@ def scrape_data():
     logger.info(f'TIME SCRAPING SUBJECTS: {end - start}')
 
     start = time()
-    scrape_courses()
+    # scrape_courses()
     end = time()
     logger.info(f'TIME SCRAPING COURSES: {end - start}')
 
     start = time()
-    # scrape_prerequisites()
+    scrape_prerequisites()
     end = time()
     logger.info(f'TIME SCRAPING PREREQUISITES: {end - start}')
 
